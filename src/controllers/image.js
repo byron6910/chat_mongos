@@ -1,12 +1,18 @@
 const path =require('path');
 const {randomNumber}=require('../helpers/libs');
 const fs=require('fs-extra');
-const {Image}=require('../models/index');
+const {Image,Comment}=require('../models/index');
+const md5=require('md5');
 
 const ctrl={};
 
-ctrl.index=(req,res)=>{
+ctrl.index=async (req,res)=>{
+  console.log(req.params.image_id);
+  const image=await Image.findOne({filename:{$regex:req.params.image_id}});//busco uno solo con los parametros que coincidan
+  //$regex validacion de expresion regular, que coincida con el otro parametro.
 
+  console.log(image);
+  res.render('image',{image});
 };
 
 ctrl.create= (req,res)=>{
@@ -32,7 +38,7 @@ ctrl.create= (req,res)=>{
           });
 
           const imageSaved=await newImg.save();
-          //res.redirect('/images/:image_id');
+          res.redirect('/images/'+imgUrl);
           res.send('works');
         }else{
           await fs.unlink(imageTempPath);//caso contrario borro la imagen temporal
@@ -52,8 +58,18 @@ ctrl.like=(req,res)=>{
 
 };
 
-ctrl.comment=(req,res)=>{
+ctrl.comment=async(req,res)=>{
+  const image=await Image.findOne({filename:{$regex:req.params.image_id}});//hago consulta a la bd de la imagen
+  if (image) {
+    const newComment=new Comment(req.body);
+    newComment.gravatar=md5(newComment.email);
+    newComment.image_id=image._id;
+    console.log(newComment);
+    await newComment.save();
+    res.redirect('/images/'+image.uniqueId);
+  }
 
+  console.log(newComment);
 };
 
 ctrl.remove=(req,res)=>{

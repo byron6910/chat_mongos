@@ -30,3 +30,28 @@
     </div>
 
 </div>
+
+
+<div class="card mt-2">
+  <div class="card-header bg-dark text-white">
+    <h3><i class="far fa-images"></i>Recently upload</h3>
+    <div class="card-body">
+
+        <div class="row">
+            {{#each images}}
+          <div class="col-md-4">
+            <a href="/images/{{uniqueId}}">
+              <img src="/public/upload/{{filename}}" alt="" class="h-100 w-100 img-thumbnail">
+            </a>
+            <div class="card-body">
+
+            </div>
+          </div>
+            {{/each}}
+
+        </div>
+
+    </div>
+  </div>
+
+</div>

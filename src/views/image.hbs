@@ -39,11 +39,11 @@
     <h3>Comment</h3>
 
   <button class="btn btn-info" id="btn-toogle-comment">
-    <i class="fa fa-comment-9=o"></i> Post a comment
+    <i class="fa fa-comment-o"></i> Post a comment
   </button>
   </div>
   <div class="card-body">
-    <blockquote >
+    <blockquote id="post-comment" >
       <form class="" action="/images/{{image.uniqueId}}/comment" method="post">
         <div class="form-group">
           <input type="text" class="form-control" name="name" placeholder="Insert your name" >
@@ -56,10 +56,29 @@
         </div>
         <div class="form-group">
           <button class="btn btn-success" id="btn-comment">
-            <i class="fa fa-comment"></i> Public post 
+            <i class="fa fa-comment"></i> Public post
           </button>
         </div>
       </form>
     </blockquote>
+    <ul class="list-group p-4">
+      {{#each comments}}    
+        <li class="list-group-item">
+          <div class="row">
+            <a href="#" class="col text-center">
+              <img src="http://gravatar.com/avatar/{{gravatar}}?d=monsterid&s=45" alt="">
+            </a>
+            <blockquote class="col">
+              <p class="lead">{{comment}}</p>
+              <footer class="blockquote-footer">
+                {{name}} -{{timeago timestamp}}
+              </footer>
+            </blockquote>
+
+          </div>
+        </li>
+
+      {{/each}}
+    </ul>
   </div>
 </div>

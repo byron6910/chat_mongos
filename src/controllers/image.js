@@ -3,16 +3,29 @@ const {randomNumber}=require('../helpers/libs');
 const fs=require('fs-extra');
 const {Image,Comment}=require('../models/index');
 const md5=require('md5');
+const sidebar=require('../helpers/sidebar');
 
 const ctrl={};
 
 ctrl.index=async (req,res)=>{
   console.log(req.params.image_id);
+  let viewModel={image:{},comments:{}};
+
   const image=await Image.findOne({filename:{$regex:req.params.image_id}});//busco uno solo con los parametros que coincidan
   //$regex validacion de expresion regular, que coincida con el otro parametro.
+  if(image){
+    image.views=image.views+1;
+    viewModel.image=image;
+    await image.save();
+    const comments=await Comment.find({image_id:image._id});
+    viewModel.comments=comments;
+    viewModel=await sidebar(viewModel);
+    console.log(image);
+    res.render('image',viewModel);
+  }else{
+    res.redirect('/');
+  }
 
-  console.log(image);
-  res.render('image',{image});
 };
 
 ctrl.create= (req,res)=>{
@@ -54,8 +67,15 @@ ctrl.create= (req,res)=>{
 
 
 
-ctrl.like=(req,res)=>{
-
+ctrl.like=async (req,res)=>{
+  const image=await Image.findOne({filename:{$regex:req.params.image_id}})
+  if(image){
+    image.likes=image.likes+1;
+    await image.save();
+    res.json({likes:image.likes});
+  } else{
+    res.status(500).json({error:'Internal Error'});
+  }
 };
 
 ctrl.comment=async(req,res)=>{
@@ -67,13 +87,24 @@ ctrl.comment=async(req,res)=>{
     console.log(newComment);
     await newComment.save();
     res.redirect('/images/'+image.uniqueId);
+  }else {
+    res.redirect('/');
   }
 
-  console.log(newComment);
+  
 };
 
-ctrl.remove=(req,res)=>{
-
+ctrl.remove=async (req,res)=>{
+  const image=await Image.findOne({filename:{$regex:req.params.image_id}});
+  console.log(image);
+  if(image){
+    await fs.unlink(path.resolve('./src/public/upload/'+image.filename));
+    await Comment.deleteOne({image_id:image._id});
+    await image.remove();
+    res.json(true);
+  }else {
+    res.json({response: 'Bad Request.'})
+  }
 };
 
 

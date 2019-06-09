@@ -8,7 +8,7 @@ const sidebar=require('../helpers/sidebar');
 const ctrl={};
 
 ctrl.index=async (req,res)=>{
-  console.log(req.params.image_id);
+  
   let viewModel={image:{},comments:{}};
 
   const image=await Image.findOne({filename:{$regex:req.params.image_id}});//busco uno solo con los parametros que coincidan
@@ -17,7 +17,7 @@ ctrl.index=async (req,res)=>{
     image.views=image.views+1;
     viewModel.image=image;
     await image.save();
-    const comments=await Comment.find({image_id:image._id});
+    const comments=await Comment.find({image_id:image._id}).sort({'timestamp': 1});
     viewModel.comments=comments;
     viewModel=await sidebar(viewModel);
     console.log(image);
@@ -68,6 +68,7 @@ ctrl.create= (req,res)=>{
 
 
 ctrl.like=async (req,res)=>{
+  console.log(req);
   const image=await Image.findOne({filename:{$regex:req.params.image_id}})
   if(image){
     image.likes=image.likes+1;
@@ -79,6 +80,7 @@ ctrl.like=async (req,res)=>{
 };
 
 ctrl.comment=async(req,res)=>{
+  
   const image=await Image.findOne({filename:{$regex:req.params.image_id}});//hago consulta a la bd de la imagen
   if (image) {
     const newComment=new Comment(req.body);
@@ -91,14 +93,15 @@ ctrl.comment=async(req,res)=>{
     res.redirect('/');
   }
 
-  
+
 };
 
 ctrl.remove=async (req,res)=>{
+  console.log(req.params);
   const image=await Image.findOne({filename:{$regex:req.params.image_id}});
   console.log(image);
   if(image){
-    await fs.unlink(path.resolve('./src/public/upload/'+image.filename));
+    await fs.unlink(path.resolve('./public/upload/'+image.filename));
     await Comment.deleteOne({image_id:image._id});
     await image.remove();
     res.json(true);

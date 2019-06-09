@@ -16,10 +16,11 @@ $('#btn-like').click(function(e){
 
 $('#btn-delete').click(function(e){
   e.preventDefault();//cancelamos su evento por defecto
-  let $this=$('this');
+  let $this=$(this);
+  console.log($this);
   const respond=confirm('Are you sure you want to delete this image?');
   if(respond){
-    let imgId=$this.data('id');
+    let imgId=$(this).data('id');
     console.log(imgId);
     $.ajax({
       url:'/images/'+imgId,
